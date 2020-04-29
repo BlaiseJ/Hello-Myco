@@ -1,0 +1,194 @@
+#!/bin/sh -l
+
+#SBATCH --nodes=1                   ##number of requested nodes (a node is a group of CPUs)
+#SBATCH --tasks-per-node=20         ##number of requested CPUs
+#SBATCH --time=02:00:00             ##time requested
+#SBATCH --job-name mycobiome_project##name of job
+#SBATCH -A scholar                  ##name of the queue you are using. Could be scholar or microbiome if you are on snyder
+
+#########################################################################
+#step 1, cd into the proper directory
+
+cd $RCAC_SCRATCH
+cd ANSC595_2020/course_project/myproject/
+
+pwd
+
+#step 2, Load Modules
+
+echo "loading bioinfo"
+module load bioinfo
+
+echo "loading qiime2-2020.2"
+module load Qiime/2-2020.2
+
+echo "Start time"
+date +"%d %B %Y %H:%M:%S"
+
+
+#echo "initiating sequence import and demux"
+
+#step 3, run your process and comment out lines that have already worked
+#A.import fasta sequences into qiime
+#time qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path ./MyProjectManifest.csv --input-format PairedEndFastqManifestPhred33 --output-path ./demux-paired-end.qza
+
+#examining the quality of the data
+#time qiime demux summarize --i-data demux-paired-end.qza --o-visualization demux-paired-end.qzv
+
+#echo "initiating dada2 and sequence classification"
+
+#selecting and removing seq variants including chimera seqs for single
+#time qiime dada2 denoise-single --i-demultiplexed-seqs demux.qza --p-trim-left-f 0 
+
+#selecting and removing seq variants including chimera seqs for pairedend reads
+#time qiime dada2 denoise-paired --i-demultiplexed-seqs demux-paired-end.qza --p-trim-left-f 5 --p-trim-left-r 5 --p-trunc-len-f 250 --p-trunc-len-r 250 --o-table table.qza --o-representative-sequences rep-seqs.qza --o-denoising-stats denoising-stats.qza
+
+#cd ..
+
+#echo "summarizing filtered/denoised seqs using the qiime feature table fxn by converting rep-seqs to visualization file"
+
+#time qiime feature-table summarize --i-table table.qza --o-visualization table.qzv --m-sample-metadata-file MyProjectMetadata.tsv
+
+#time qiime feature-table tabulate-seqs --i-data rep-seqs.qza --o-visualization rep-seqs.qzv
+
+#echo "initiating a multiple sequence alignment with mafft"
+
+#time qiime alignment mafft --i-sequences rep-seqs.qza --o-alignment aligned-rep-seqs.qza 
+
+#echo "initiating masking of noisy sites"
+
+#mask seqs to remove uninformative sites from alignment
+
+#time qiime alignment mask --i-alignment aligned-rep-seqs.qza --o-masked-alignment masked-aligned-rep-seqs.qza
+
+#echo "initiating fasttree to create a phylogeny from masked aligned seqs"
+
+#time qiime phylogeny fasttree --i-alignment masked-aligned-rep-seqs.qza --o-tree unrooted-tree.qza
+
+#echo "initiating midpoint rooting of the tree using longest root"
+
+#time qiime phylogeny midpoint-root --i-tree unrooted-tree.qza --o-rooted-tree rooted-tree.qza
+
+#echo "initiating alpha rarefaction to see the imapct of sampling at different depths"
+
+#time qiime diversity alpha-rarefaction --i-table table.qza --i-phylogeny rooted-tree.qza --p-max-depth 66138 --m-metadata-file MyProjectMetadata.tsv --o-visualization alpha-rarefaction.qzv
+
+#echo "initiating the calculation and exploration of core diversity metrics alpha diversity"
+
+#qiime diversity core-metrics-phylogenetic --i-phylogeny rooted-tree.qza --i-table table.qza --p-sampling-depth 15000 --m-metadata-file MyProjectMetadata.tsv --output-dir core-metrics-results
+
+#echo "initiating visualizations of alpha diversity metrics"
+
+#time qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/faith_pd_vector.qza --m-metadata-file MyProjectMetadata.tsv --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+#time qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/evenness_vector.qza --m-metadata-file MyProjectMetadata.tsv --o-visualization core-metrics-results/evenness-group-significance.qzv
+
+#time qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/shannon_vector.qza --m-metadata-file MyProjectMetadata.tsv --o-visualization core-metrics-results/shannon_group-significance.qzv
+
+#echo "initiating visualizations of beta diversity metrics"
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Country --o-visualization core-metrics-results/unweighted-unifrac-country-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Status --o-visualization core-metrics-results/unweighted-unifrac-status-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Host --o-visualization core-metrics-results/unweighted-unifrac-host-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance -i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Country --o-visualization core-metrics-results/weighted-unifrac-country-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Status --o-visualization core-metrics-results/weighted-unifrac-status-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Host --o-visualization core-metrics-results/weighted-unifrac-host-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/bray_curtis_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Country --o-visualization core-metrics-results/bray-curtis-country-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/bray_curtis_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Status --o-visualization core-metrics-results/bray-curtis-status-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/bray_curtis_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Host --o-visualization core-metrics-results/bray_curtis-host-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/jaccard_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Country --o-visualization core-metrics-results/jaccard-country-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/jaccard_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Status --o-visualization core-metrics-results/jaccard-status-significance.qzv --p-pairwise
+
+#time qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/jaccard_distance_matrix.qza --m-metadata-file MyProjectMetadata.tsv --m-metadata-column Host --o-visualization core-metrics-results/jaccard-host-significance.qzv --p-pairwise
+
+#echo "initiating PCOA analysis"
+
+#failed because the values need to be numeric.first, use the unweighted unifrac data as input
+#time qiime emperor plot --i-pcoa core-metrics-results/unweighted_unifrac_pcoa_results.qza --m-metadata-file MyProjectMetadata.tsv --p-custom-axes Host --o-visualization core-metrics-results/unweighted-unifrac-emperor-Host.qzv
+
+#now repeat with bray curtis
+#qiime emperor plot --i-pcoa core-metrics-results/bray_curtis_pcoa_results.qza --m-metadata-file MyProjectMetadata.tsv --p-custom-axes Host --o-visualization core-metrics-results/bray-curtis-emperor-Host.qzv
+
+#echo "training the classifier"
+
+#qiime tools import --type FeatureData[Sequence] --input-path sh_refs_qiime_ver8_99_04.02.2020.fasta  --output-path unite-ver8_99_seqs_04.02.2020.qza
+
+#import taxonomy file into qiime
+#qiime tools import --type FeatureData[Taxonomy] --input-path sh_taxonomy_qiime_ver8_99_04.02.2020.txt --output-path unite-ver8_99_tax_04.02.2020.qza --input-format HeaderlessTSVTaxonomyFormat
+
+#Training the classifier. merge the sequence and taxonomy .qzas into a classifier object
+#qiime feature-classifier fit-classifier-naive-bayes --i-reference-reads unite-ver8_99_seqs_04.02.2020.qza --i-reference-taxonomy unite-ver8_99_tax_04.02.2020.qza --o-classifier unite-ver8-99-classifier-04.02.2020.qza
+
+#echo "initiate taxonomic assignment to seqs"
+
+#Taxonomic analysis. classify seqs using UNITEv8_99
+
+#time qiime feature-classifier classify-sklearn --i-classifier unite-ver8-99-classifier-04.02.2020_dev.qza --i-reads rep-seqs.qza --o-classification taxonomy.qza
+
+#make visualization of the taxonomy.qza file
+
+#time qiime metadata tabulate --m-input-file taxonomy.qza --o-visualization taxonomy.qzv
+
+#make a bar plot visualization of the taxonomy data
+#time qiime taxa barplot --i-table table.qza --i-taxonomy taxonomy.qza --m-metadata-file MyProjectMetadata.tsv --o-visualization taxa-bar-plots.qzv
+
+#echo "initiating qiime export tools"
+
+#cd core-metrics-results
+
+#time qiime tools export --input-path rarefied_table.qza --output-path exported/
+
+#time qiime tools export --input-path ../taxonomy.qza --output-path exported/
+
+#qiime tools export --input-path faith_pd_vector.qza --output-path exported/
+ 
+#mv exported/alpha-diversity.tsv exported/faith_pd.tsv
+
+#qiime tools export --input-path shannon_vector.qza --output-path exported/
+
+#mv exported/alpha-diversity.tsv exported/shannon.tsv
+
+#time qiime tools export --input-path observed_otus_vector.qza --output-path exported/
+
+#mv exported/alpha-diversity.tsv exported/observed_otus.tsv
+
+#time qiime tools export --input-path evenness_vector.qza --output-path exported/
+
+#mv exported/alpha-diversity.tsv exported/evenness.tsv
+
+#biom convert -i exported/feature-table.biom -o exported/rarified-table.tsv --to-tsv
+
+#cp ./MyProjectMetadata.tsv exported/
+
+#cd ..
+
+echo "initiating differential abundance"
+
+#filter based on Host
+#time qiime feature-table filter-samples --i-table table.qza --m-metadata-file MyProjectMetadata.tsv --p-where "Host='G. pallida'" --o-filtered-table g-pallida-table.qza
+
+#time qiime composition add-pseudocount --i-table g-pallida-table.qza --o-composition-table comp-g-pallida-table.qza
+
+#now run ANCOM
+time qiime composition ancom \
+ --i-table comp-g-pallida-table.qza \
+ --m-metadata-file MyProjectMetadata.tsv \
+ --m-metadata-column Population \
+ --o-visualization ancom-Population.qzv
+
+echo "Time to transfer files within exported to my laptop "
+
+echo "End time"
+date +"%d %B %Y %H:%M:%S"
+
+#to run: sbatch qiime_barplot.slurm
